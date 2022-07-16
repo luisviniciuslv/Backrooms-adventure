@@ -1,4 +1,4 @@
-import DiscordJS, { Intents } from "discord.js";
+import DiscordJS, { Intents } from "discord.js"; //hello
 import { config } from "./config";
 
 describe("User controller tests", () => {
@@ -9,12 +9,6 @@ describe("User controller tests", () => {
 
     client.on("ready", () => {
       console.log("bot is ready :)");
-    });
-
-    client.on("messageCreate", (message) => {
-      if (message.content === "ping") {
-        message.reply({ content: "pong" });
-      }
     });
 
     expect(async () => {

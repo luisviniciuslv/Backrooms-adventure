@@ -14,8 +14,8 @@ export interface Book {
 export interface IUser extends Document {
   id: number;
   itens: Itens[];
-  money: number;
   books: Book[];
+  stamina: number;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -25,7 +25,10 @@ const UserSchema = new Schema<IUser>(
       required: true,
       unique: true,
     },
-
+    stamina:{
+      type: Number,
+      required: true
+    },
     books: [
       {
         pages: {
@@ -49,11 +52,6 @@ const UserSchema = new Schema<IUser>(
         },
       },
     ],
-
-    money: {
-      type: Number,
-      required: true,
-    },
   },
   {
     timestamps: true,

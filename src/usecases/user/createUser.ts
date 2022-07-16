@@ -10,25 +10,15 @@ export async function createUser({ userId }: iRequest) {
   const books: Book[] = [
     {
       pages: [],
-      name: "Prólogo",
+      name: "0",
       maxPages: 3
-    },
-    {
-      pages: [],
-      name: "O começo de tudo",
-      maxPages: 20
-    },
-    {
-      pages: [],
-      name: "O Fim",
-      maxPages: 40
     },
   ]
 
   if (!hasUser){
-    await User.create({ id: userId, itens: [], money: 0, books });
+    await User.create({ id: userId, stamina: 3, itens: [], books });
   }
   else {
-    console.log("usuario já criado");
+    return
   }
 }
