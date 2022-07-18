@@ -13,5 +13,4 @@ export async function findBook({userId, bookName}:IRequest){
 
   const book = user?.books.find((book) => book.name === bookName)
 
-  console.log(book);
 }

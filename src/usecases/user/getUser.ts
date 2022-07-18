@@ -5,7 +5,7 @@ export async function getUser(userId: number, field: string) {
   try{
     const user = await User.findOne({ id: userId })
     if (user){
-      console.log(user[field]);
+      ;
       return user[field]
     }
   }catch{

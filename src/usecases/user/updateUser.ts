@@ -6,7 +6,7 @@ interface IRequest {
   bookName: string;
 }
 
-export async function updateUser({ userId, moneyValue, bookName }: IRequest) {
+export async function updateUser({ userId, bookName }: IRequest) {
   await createUser({ userId: userId });
   const user = (await User.findOne({ id: userId })) as IUser;
 
@@ -22,20 +22,15 @@ export async function updateUser({ userId, moneyValue, bookName }: IRequest) {
       }
     }
     const randomNumber = Math.floor(Math.random() * pages.length);
-    if (pages) {
+    if (pages.length > 0) {
       const selectedPage = pages[randomNumber];
       const bookIndex = user.books.findIndex((book) => book.name === bookName);
       bookUser.pages.push(selectedPage);
       user.books[bookIndex] = bookUser;
       await user.save();
+      return true
     } else {
-      return;
+      return false;
     }
   }
-
-  /*   const updatedUser = await User.findOneAndUpdate({ id: userId }, {
-    $set: {
-      money: user.money += moneyValue,
-    }
-  }); */
 }
