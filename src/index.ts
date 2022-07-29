@@ -14,37 +14,24 @@ async function init() {
     intents: [
       Intents.FLAGS.GUILDS,
       Intents.FLAGS.GUILD_MESSAGES,
-      Intents.FLAGS.GUILD_INTEGRATIONS,
-      Intents.FLAGS.GUILD_MEMBERS,
+      Intents.FLAGS.GUILD_MEMBERS
     ],
   });
+
   client.on("ready", () => {
-    // if(client.application){
-    //   client.application.commands.set([])
-    // }
+    if(client.application){
+      client.application.commands.set([])
+    }
     console.log("bot is ready :)");
+
     new WOKCommands(client, {
       commandsDir: path.join(__dirname, "commands"),
+      featuresDir: path.join(__dirname, 'features'),
       typeScript: true,
       testServers: ["996552236085813279"],
-    });
+    }).setDefaultPrefix("!")
   });
 
-  client.on("messageCreate", async (message) => {
-    if (message.content.toLowerCase() === "piso") {
-      message.delete();
-      if (message.member?.roles.cache.has("997669428676268133")) {
-        message.member?.roles.set(["998244480601825331"]).catch(console.error);
-        message.channel.send(
-          `${message.author} Caiu em uma backroom aleatória`
-        );
-      }
-    }
-  });
-
-  client.on("guildMemberAdd", (member) => {
-    member.roles.set(["997669428676268133"]);
-  });
   client.login(config.TOKEN);
 }
 

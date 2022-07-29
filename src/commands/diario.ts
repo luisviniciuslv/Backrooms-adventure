@@ -1,131 +1,87 @@
-import {
-  MessageActionRow,
-  MessageSelectMenu,
-  SelectMenuInteraction,
-} from "discord.js";
-import { ICommand } from "wokcommands";
-import { getUser } from "../usecases/user/getUser";
-async function hasLeaf(userId: number, book: number, folha: String) {
-  const pages = await getUser(userId, "books");
-  if (pages[book].pages.includes(folha)) {
-    return `Folha ${folha}`;
-  } else {
-    return "???";
-  }
+    import { MessageActionRow, MessageSelectMenu, SelectMenuInteraction } from 'discord.js'
+import { ICommand } from 'wokcommands'
+import DiaryLevels from '../diaryLevels.json'
+import Papers from '../papers.json'
+import { getUser } from '../usecases/user/getUser'
+
+const cargos = {
+    level0: '997669428676268133',
+    level27: '998244480601825331',
 }
+
 export default {
-  category: "Inventário",
-  description: "Olhar páginas do diário coletadas",
-  slash: true,
-  callback: async ({ member, interaction: msgInt, channel }) => {
-    if(member?.roles.cache.has("997669428676268133")){
-      var folha1 = '???';
-    var folha2 = '???';
-    var folha3 = '???';
-    const folhas = await getUser(Number(msgInt.user.id), "books")
-    if(folhas[0].pages.includes("1")){
-      folha1 = "Folha 1"
-    }
-    if(folhas[0].pages.includes("2")){
-      folha2 = "Folha 2"
-    }
-    if(folhas[0].pages.includes("3")){
-      folha3 = "Folha 3"
-    }
-
-    const row = new MessageActionRow().addComponents(
-      new MessageSelectMenu()
-        .setCustomId("Backroom 0")
-        .setPlaceholder("Diário")
-        .addOptions([
-          {
-            label: folha1,
-            description: "enviar ao chat",
-            value: "Folha 1",
-          },
-          {
-            label: folha2,
-            description: "enviar ao chat",
-            value: "Folha 2",
-          },
-          {
-            label: folha3,
-            description: "enviar ao chat",
-            value: "Folha 3",
-          },
-        ])
-    );
-    await msgInt.reply({
-      content: "Diário",
-      components: [row],
-    });
-
-    const collector = channel.createMessageComponentCollector({
-      max: 14,
-      time: 1000 * 15,
-    });
-    collector.on("collect", async (i: SelectMenuInteraction) => {
-      const value = i.values[0];
-
-      if (i.user.id === msgInt.user.id) {
-        if (value === "Folha 1") {
-          const book = await getUser(Number(msgInt.user.id), "books");
-          if (book[0].pages.includes("1")) {
-            i.reply({
-              content: `${value} enviado ao chat do ${msgInt.user}\nCaso não receba a mensagem, entre em contato com um adm`,
-              components: [],
-            });
-            const channel = msgInt.channel;
-            msgInt.user
-              .send(
-                "https://cdn.discordapp.com/attachments/996464678647640264/998054307817590905/folha_1.png"
-              )
-              .catch(console.error);
-          } else {
-            i.reply({
-              content: "Você não tem esse item",
-            });
-          }
+    category: 'Inventário',
+    description: 'Olhar páginas do diário coletadas',
+    // slash: true,
+    expectedArgs: '<backroom>',
+    minArgs: 0,
+    maxArgs: 1,
+    callback: async ({ member, interaction: msgInt, channel, args }) => {
+        if (!args.length) {
+            return 'Comando escrito de forma incorreta, para usar o comando corretamente, digite /diario <backroom>'
         }
 
-        if (value === "Folha 2") {
-          const book = await getUser(Number(msgInt.user.id), "books");
-          if (book[0].pages.includes("2")) {
-            i.reply({
-              content: `${value} enviado ao chat do ${msgInt.user}\nCaso não receba a mensagem, entre em contato com um adm`,
-              components: [],
-            });
-            msgInt.user.send("folha 2").catch(console.error);
-            // enviar ao chat
-          } else {
-            i.reply({
-              content: "Você não tem esse item",
-            });
-          }
+        if (!Object.values(cargos).some(cargo => member.roles.cache.has(cargo))) {
+            return 'Você não tem permissão para usar esse comando'
         }
 
-        if (value === "Folha 3") {
-          const book = await getUser(Number(msgInt.user.id), "books");
-          if (book[0].pages.includes("3")) {
-            i.reply({
-              content: `${value} enviado ao chat do ${msgInt.user}\nCaso não receba a mensagem, entre em contato com um adm`,
-              components: [],
-            });
-            msgInt.user.send("folha 3").catch(console.error);
-            // enviar ao chat
-          } else {
-            i.reply({
-              content: "Você não tem esse item",
-            });
-          }
+        const levelIsNumber = /^\d+$/.test(args[0])
+
+        if (!levelIsNumber) {
+            return 'O nível deve ser um número'
         }
-      } else {
-        return;
-      }
-    });
-    }
-    else{
-      return "você não tem permissão para usar esse comando"
-    }
-  },
-} as ICommand;
+
+        const allLevels = Object.keys(DiaryLevels.level)
+
+        if (!allLevels.includes(args[0])) {
+            return 'Essa backroom ainda não foi implementada'
+        }
+
+        const diary = await getUser(member.user.id, 'diary')
+
+        const folhas = (DiaryLevels as any).level[args[0]] as number[]
+
+        const row = new MessageActionRow().addComponents(
+            new MessageSelectMenu()
+                .setCustomId('Backroom 0')
+                .setPlaceholder('Diário')
+                .addOptions(
+                    folhas.map(folha => ({
+                        label: diary.includes(folha) ? `Folha ${folha}` : '???',
+                        description: `Enviar ao chat`,
+                        value: folha.toString(),
+                    }))
+                )
+        )
+
+        await msgInt.reply({
+            content: 'Diário',
+            components: [row],
+        })
+
+        const collector = channel.createMessageComponentCollector({
+            max: 14,
+            time: 1000 * 15,
+        })
+        collector.on('collect', async (i: SelectMenuInteraction) => {
+            const folha = parseInt(i.values[0])
+            i.deferUpdate()
+
+            if (i.user.id === msgInt.user.id) {
+                const diary = await getUser(msgInt.user.id, 'diary')
+
+                if (diary.includes(folha)) {
+                    i.channel!.send({
+                        content: `${folha} enviado ao chat do ${msgInt.user}\nCaso não receba a mensagem, entre em contato com um adm`,
+                        components: [],
+                    })
+                    msgInt.user.send(Papers.papers[folha]).catch(console.error)
+                } else {
+                    i.channel!.send({
+                        content: 'Você não tem esse item',
+                    })
+                }
+            }
+        })
+    },
+} as ICommand

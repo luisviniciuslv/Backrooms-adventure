@@ -1,28 +1,16 @@
 import { Document, Model, model, Schema } from "mongoose";
 
-interface Itens {
-  forca?: number;
-  durabilidade?: number;
-}
-
-export interface Book {
-  maxPages: number;
-  name: string;
-  pages: number[];
-}
-
 export interface IUser extends Document {
-  id: number;
+  id: string;
   stamina: number;
-  itens: Itens[];
-  books: Book[];
-backrooms: []
+  diary: number[];
+  backrooms: number[]
 }
 
 const UserSchema = new Schema<IUser>(
   {
     id: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
     },
@@ -34,29 +22,7 @@ const UserSchema = new Schema<IUser>(
       type: Number,
       required: true,
     },
-    books: [
-      {
-        pages: {
-          type: [Number],
-        },
-        name: {
-          type: String,
-        },
-        maxPages: {
-          type: Number,
-        },
-      },
-    ],
-    itens: [
-      {
-        forca: {
-          type: Number,
-        },
-        durabilidade: {
-          type: Number,
-        },
-      },
-    ],
+    diary: [],
   },
   {
     timestamps: true,

@@ -3,6 +3,7 @@
         "outDir": "./dist",
         "module": "CommonJS",
         "target": "ES2019",
+        "resolveJsonModule": true,
         "esModuleInterop": true,
         "allowJs": true,
         "strictNullChecks": true
